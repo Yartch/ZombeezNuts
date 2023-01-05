@@ -1,0 +1,12 @@
+version=1
+id=2913167226
+title=Zombeez Nuts (Onyerchin) TEST VERSION
+description=What an absolutely wild TEST mod. I recommend this one to everyone ever.
+description=
+description=Official Website:
+description=https://mods.yartch.com/zomboid/zombeeznuts/
+description=
+description=Source Code:
+description=https://github.com/Yartch/ZombeezNuts
+tags=
+visibility=unlisted

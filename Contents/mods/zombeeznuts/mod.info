@@ -1,0 +1,7 @@
+name=Zombeez Nuts (Onyerchin) LOCAL TEST VERSION
+poster=poster.png
+id=zombeezNutsLocalTest
+description=Stuff like Zombie Jesus and Yartch Approved items.
+url=https://mods.yartch.com/zomboid/zombeeznuts/
+pack=yartchTiles
+tiledef=yartchTiles 421

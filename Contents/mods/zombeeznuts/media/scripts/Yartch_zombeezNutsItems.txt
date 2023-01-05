@@ -1,0 +1,33 @@
+module ZombeezNuts
+{
+    imports
+	{
+        Base,
+    }
+
+	item ZombieJesusCross
+	{
+		Type = Moveable,
+		Weight = 3.0,
+		DisplayName = Zombie Jesus Cross,
+		WorldObjectSprite = yartch_tiles_01_0,
+	}
+	recipe Make Zombie Jesus Cross
+	{
+		keep Hammer,
+		Plank=2,
+		Nails=2,
+		Result : ZombieJesusCross,
+		Time : 30.0,
+		Category: Furniture,
+	}
+
+	item ZombieJesusCoal
+	{
+		DisplayCategory = Junk,
+		Weight = 10.0,
+		Type = Normal,
+		DisplayName = Zombie Jesus Coal,
+		Icon = Yartch_ZombieJesusCoal,
+	}
+}
