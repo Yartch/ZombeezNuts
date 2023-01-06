@@ -5,6 +5,24 @@
 local Util = ZombeezNuts.Util
 local IsoUtils = ZombeezNuts.IsoUtils
 
+local function getLimitedTable(inTable, amount)
+    if amount == nil then
+        return inTable
+    end
+
+    local outTable = { }
+
+    for i,obj in pairs(inTable) do
+        table.insert(outTable, obj)
+        amount = amount - 1
+        if amount == 0 then
+            break
+        end
+    end
+
+    return outTable
+end
+
 -- Recursively adds item to the items table if it passes the filter
 function Util:addItem(items, item, filters)
     local pass = true
@@ -73,3 +91,79 @@ function Util:getPlayerClosestItems (player, filters)
     return items
 end
 
+-- Repairs the most damaged items near a player (including their inventory)
+function Util:repairItemsNearPlayer(player, numItems, repairAmount)
+    if isServer() then return end
+
+    -- Get items close the player, then sort them by condition percent ascending
+    local items = Util:getPlayerClosestItems(player, { isDamaged = true })
+    table.sort(items, function(a,b)
+        local percentA = a:getCondition() / a:getConditionMax()
+        local percentB = b:getCondition() / b:getConditionMax()
+        return percentA < percentB
+    end)
+
+    items = getLimitedTable(items, numItems)
+
+    for i,item in pairs(items) do
+        local newCondition = math.min(item:getCondition() + repairAmount, item:getConditionMax())
+        item:setCondition(newCondition)
+    end
+end
+
+
+
+local function getPlayerBodyParts(player, onlyDamaged, amount)
+    local parts = { }
+    for i=0,player:getBodyDamage():getBodyParts():size() - 1 do
+        local part = player:getBodyDamage():getBodyParts():get(i)
+        if not onlyDamaged or part:getHealth() < 100 then
+            table.insert(parts, part)
+        end
+    end
+    return getLimitedTable(parts, amount)
+end
+
+local function getPlayerBodyPartsSorted(player, onlyDamaged, sortHighToLow, amount) 
+    if amount ~= nil and amount <= 0 then
+        return { }
+    end
+    
+    local parts = getPlayerBodyParts(player, onlyDamaged)
+
+    if sortHighToLow then
+        table.sort(parts, function(a,b) return a:getHealth() > b:getHealth() end)
+    else
+        table.sort(parts, function(a,b) return a:getHealth() < b:getHealth() end)
+    end
+
+    return getLimitedTable(parts, amount)
+end
+
+-- Heals the players most damaged body parts
+function Util:healPlayerBodyParts(player, numParts, healAmount)
+    local parts = getPlayerBodyPartsSorted(player, true, false, numParts)
+    
+     for i,part in pairs(parts) do
+        part:AddHealth(healAmount)
+    end
+end
+
+-- Damages the players most healthy body parts
+function Util:damagePlayerBodyParts(player, numParts, damageAmount)
+    local parts = getPlayerBodyPartsSorted(player, false, true, numParts)
+    
+     for i,part in pairs(parts) do
+        part:AddDamage(damageAmount)
+    end
+end
+
+-- Makes random body parts bleed
+function Util:bleedPlayerBodyParts(player, numParts, severity)
+    local parts = getPlayerBodyParts(player, false, numParts)
+    
+     for i,part in pairs(parts) do
+        local currentBleedDuration = part:getBleedingTime()
+        part:setBleedingTime(currentBleedDuration + severity)
+    end
+end

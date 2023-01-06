@@ -11,9 +11,23 @@ Prayers.Types.TemporalPlea = ZombieJesusPrayer:new {
     prayerAnimation = "ZJPrayerDefault",
 
     results = {
+
+          -- Doesn't give the player the spinning curse
+          Spare = ZombieJesusPrayerResult:new {
+            weight = 0.5,
+            resultText = "You are one merciful angel, Michaelsanjello.",
+            resultColor = HaloTextHelper.getColorGreen(),
+            action = function (player)
+                local hat = player:getWornItem("Hat")
+                if hat ~= nil then
+                    hat:setCondition(hat:getConditionMax())
+                end
+            end
+        },
+
         -- Gives the player the spinning curse
         SpinCurse = ZombieJesusPrayerResult:new {
-            weight = 1.0,
+            weight = 0.5,
             resultText = "Michaelsanjello, I sure am feeling dizzy!",
             resultColor = HaloTextHelper.getColorRed(),
             action = function (player)

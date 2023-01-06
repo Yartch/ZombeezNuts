@@ -11,55 +11,43 @@ Prayers.Types.Vitality = ZombieJesusPrayer:new {
     prayerAnimation = "ZJPrayerDefault",
 
     results = {
-
-        -- Heals health and a random damaged body part
-        --[[Spared = ZombieJesusPrayerResult:new {
-            weight = 1.0,
+        -- Heals the player's most damaged body parts
+        Doctor = ZombieJesusPrayerResult:new {
+            weight = 0.3,
             resultText = "The doctor works fast.",
             resultColor = HaloTextHelper.getColorGreen(),
             action = function (player)
-
-                -- The client will receive the heal messages from the server
-                if isServer() then return end
-
-                
-
+                Util:healPlayerBodyParts(player, 3, 40)
             end
-        },]]--
+        },
 
         -- Repairs the player's most damaged items
         Repair = ZombieJesusPrayerResult:new {
-            weight = 1.0,
+            weight = 0.3,
             resultText = "I sense that some items just got repaired.",
             resultColor = HaloTextHelper.getColorGreen(),
             action = function (player)
+                Util:repairItemsNearPlayer(player, 3, 3)
+            end
+        },
 
-                -- The client will receive the repair messages from the server
-                if isServer() then return end
+        -- Damages the player's healthiest body parts
+        Damage = ZombieJesusPrayerResult:new {
+            weight = 0.1,
+            resultText = "Pain fills my soul, and I'm not a fan.",
+            resultColor = HaloTextHelper.getColorRed(),
+            action = function (player)
+                Util:damagePlayerBodyParts(player, 5, 20)
+            end
+        },
 
-                -- Get items close the player, then sort them by condition percent ascending
-                local items = Util:getPlayerClosestItems(getPlayer(), { isDamaged = true })
-                table.sort(items, function(a,b)
-                    local percentA = a:getCondition() / a:getConditionMax()
-                    local percentB = b:getCondition() / b:getConditionMax()
-                    return percentA < percentB
-                end)
-
-                -- Add from the list until the quota is met
-                local remainingCount = 3
-                for i,item in pairs(items) do
-                    local newCondition = math.min(item:getCondition() + 3, item:getConditionMax())
-                    item:setCondition(newCondition)
-
-                    if isServer() then
-                        sendServerCommand(player, "YartchZombieJesus", "ItemConditionUpdate", { })
-                    end
-
-                    remainingCount = remainingCount - 1
-                    if remainingCount == 0 then
-                        break
-                    end
-                end
+        -- Causes a random body part to bleed
+        Bleed = ZombieJesusPrayerResult:new {
+            weight = 0.1,
+            resultText = "Bloody heck...",
+            resultColor = HaloTextHelper.getColorRed(),
+            action = function (player)
+                Util:bleedPlayerBodyParts(player, 2, 20)
             end
         },
     }

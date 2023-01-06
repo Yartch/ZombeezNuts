@@ -80,6 +80,7 @@ function ZombieJesusCrossUI:createChildren(width)
 
 	-- Prayer buttons
 	self.prayerButtons = {}
+	self.prayerResultButtons = {}
 	for i, prayer in pairs(Prayers.Types) do
 
 		local posX = (self.width / 2) - (buttonWidth / 2)
@@ -91,6 +92,21 @@ function ZombieJesusCrossUI:createChildren(width)
 		self:addChild(self.prayerButtons[i]);
 
 		y = y + buttonHeight + buttonSpacing
+
+		if isDebugEnabled() then
+			self.prayerResultButtons[i] = { }			
+			for j, res in pairs(prayer.results) do
+				local debugPosX = (self.width / 2) - (buttonWidth / 2)
+				self.prayerResultButtons[i][j] = ISButton:new(debugPosX, y, debugButtonWidth, debugButtonHeight, j, self, ZombieJesusCrossUI.selectPrayerResult)
+				self.prayerResultButtons[i][j]:initialise()
+				self.prayerResultButtons[i][j]:setOnClick(ZombieJesusCrossUI.selectPrayerResult, i, j)
+				self.prayerResultButtons[i][j]:setTooltip(res.resultText)
+				self:addChild(self.prayerResultButtons[i][j]);
+				y = y + debugButtonHeight
+			end
+
+			y = y + buttonSpacing
+		end		
     end
 
 	y = y + buttonSpacing * 3
@@ -108,17 +124,9 @@ function ZombieJesusCrossUI:createChildren(width)
 		local onX = self.width - debugButtonWidth * 2 - buttonSpacing * 2
 		local offX = self.width - debugButtonWidth - buttonSpacing
 
-		self.debugItemFind = ISButton:new(itemX, y, debugButtonWidth, debugButtonHeight, "ITEM FIND", self, ZombieJesusCrossUI.debugItemFind)
+		self.debugItemFind = ISButton:new(itemX, y, debugButtonWidth, debugButtonHeight, "DEBUG TEST", self, ZombieJesusCrossUI.debugTest)
 		self.debugItemFind:initialise()
 		self:addChild(self.debugItemFind)
-
-		self.debugSpinOnButton = ISButton:new(onX, y, debugButtonWidth, debugButtonHeight, "SPIN ON", self, ZombieJesusCrossUI.debugSpinOn)
-		self.debugSpinOnButton:initialise()
-		self:addChild(self.debugSpinOnButton)
-
-		self.debugSpinOffButton = ISButton:new(offX, y, debugButtonWidth, debugButtonHeight, "SPIN OFF", self, ZombieJesusCrossUI.debugSpinOff)
-		self.debugSpinOffButton:initialise()
-		self:addChild(self.debugSpinOffButton)
 
 		y = y + debugButtonHeight + buttonSpacing
 	end
@@ -137,32 +145,17 @@ function ZombieJesusCrossUI:selectPrayer(caller, prayerName)
 	self:setVisible(false)
 end
 
-function ZombieJesusCrossUI:debugItemFind()
-	local items = Util:getPlayerClosestItems(getPlayer(), { isDamaged = true })
-	
-	table.sort(items, function(a,b)
-		local percentA = a:getCondition() / a:getConditionMax()
-		local percentB = b:getCondition() / b:getConditionMax()
-		return percentA < percentB
-	end)
+function ZombieJesusCrossUI:selectPrayerResult(caller, prayerName, resultName)
+	local prayer = Prayers.Types[prayerName]
+    local result = prayer.results[resultName]
 
-	for i,item in pairs(items) do
-		print(item:getName())
-	end
+	Client:showPrayerResult (result, getPlayer())
+	result.action(getPlayer())
+
+	self:setVisible(false)
 end
 
-function ZombieJesusCrossUI:debugSpinOn()
-	if isClient() then
-		sendClientCommand("YartchZombieJesus", "DebugSpinOn")
-	else
-		getPlayer():setVariable("IsCursedWithSpinning", true)
-	end
-end
 
-function ZombieJesusCrossUI:debugSpinOff()
-	if isClient() then
-		sendClientCommand("YartchZombieJesus", "DebugSpinOff")
-	else
-		getPlayer():setVariable("IsCursedWithSpinning", false)
-	end
+function ZombieJesusCrossUI:debugTest()
+	Util:healPlayerBodyParts(getPlayer(), 3, 20)
 end
