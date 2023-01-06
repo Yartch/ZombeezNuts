@@ -4,7 +4,7 @@
 
 ZombeezNuts = {
     Settings = {
-        prayerCooldownMinutes = 1, -- 690 for live, which is 11.5 hours 
+        prayerCooldownMinutes = 330, -- 330 for live, which is 5.5 hours 
     },
 
     Util = { },
